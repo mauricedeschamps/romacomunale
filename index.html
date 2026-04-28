@@ -225,23 +225,36 @@
       border-radius: 32px;
       animation: fadeIn 0.2s;
     }
+    /* ========== バックボタンのスタイルを強化 (ダークモードで明確に) ========== */
     .back-btn {
-      background: none;
-      border: 1px solid currentColor;
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 1.5rem;
+      background: rgba(128, 128, 128, 0.12);
+      border: 1px solid #8a8a9a;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 1.8rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 20px;
-      border-radius: 40px;
-      transition: 0.2s;
+      padding: 8px 22px;
+      border-radius: 50px;
+      transition: all 0.2s ease;
+      color: #2c2c3a;
+    }
+    body.dark .back-btn {
+      background: rgba(200, 200, 220, 0.12);
+      border: 1px solid #bbbbdd;
+      color: #eef2ff;
     }
     .back-btn:hover {
-      background: rgba(128,128,128,0.1);
+      background: rgba(128, 128, 128, 0.25);
+      transform: translateX(-3px);
     }
+    body.dark .back-btn:hover {
+      background: rgba(180, 180, 220, 0.25);
+      border-color: #ddddf5;
+    }
+    /* ============================================= */
     .detail-img {
       width: 100%;
       max-height: 420px;
@@ -357,7 +370,7 @@
     const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY";
     // ============================================================
 
-    // ---------- 1. PLACES DATA (imageUrl untouched, descriptions expanded) ----------
+    // ---------- 1. PLACES DATA (全ての画像URL・説明文は元のまま維持) ----------
     const placesData = [
       { id: "bracciano", name_en: "Bracciano", name_it: "Bracciano", name_ja: "ブラッチャーノ",
         desc_en: "✨ Medieval charm on a volcanic lake. Access: Train from Roma Termini to Bracciano (50-60 min), then a short walk. \n\n🏰 What to do: Explore the imposing Orsini-Odescalchi Castle (a favorite for celebrity weddings), swim in the crystal-clear waters of Lake Bracciano, rent a kayak or paddleboard, and enjoy a sunset aperitivo at a lakeside trattoria. The historic center is a maze of cobbled alleys leading to panoramic viewpoints.\n\n🍝 Local tip: Try the lakefish specialties – ‘coregone’ (whitefish) is a must.",
