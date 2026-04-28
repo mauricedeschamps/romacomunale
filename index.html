@@ -227,16 +227,20 @@
     }
     .back-btn {
       background: none;
-      border: none;
-      font-size: 1rem;
-      font-weight: 600;
+      border: 1px solid currentColor;
+      font-size: 0.9rem;
+      font-weight: 500;
       margin-bottom: 1.5rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 16px;
+      gap: 8px;
+      padding: 8px 20px;
       border-radius: 40px;
+      transition: 0.2s;
+    }
+    .back-btn:hover {
+      background: rgba(128,128,128,0.1);
     }
     .detail-img {
       width: 100%;
@@ -252,8 +256,9 @@
     }
     .detail-desc {
       font-size: 1rem;
-      line-height: 1.55;
+      line-height: 1.6;
       margin: 1rem 0;
+      white-space: pre-line;
     }
     .official-link {
       display: inline-block;
@@ -349,114 +354,114 @@
   <script>
     // ============================================================
     // 🔑 ここにあなたの Google Maps API キーを貼り付けてください
-    const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY";   // ← この文字列を実際のキーに置き換える
+    const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY";
     // ============================================================
 
-    // ---------- 1. PLACES DATA (with imageUrl) ----------
+    // ---------- 1. PLACES DATA (imageUrl untouched, descriptions expanded) ----------
     const placesData = [
       { id: "bracciano", name_en: "Bracciano", name_it: "Bracciano", name_ja: "ブラッチャーノ",
-        desc_en: "✨ Medieval charm on volcanic lake. Access: train Roma Termini→Bracciano (50-60 min) + short walk. Relax: Visit Orsini-Odescalchi Castle, swim in crystal lake, rent a kayak, sunset aperitivo by the water.",
-        desc_it: "✨ Fascino medievale sul lago vulcanico. Accesso: treno da Roma Termini a Bracciano (50-60 min). Relax: Castello Orsini-Odescalchi, nuotata nel lago, giri in kayak, tramonto con aperitivo.",
-        desc_ja: "✨ 中世の趣と火山湖。アクセス：ローマ・テルミニ駅から電車で約1時間。過ごし方：オルシーニ城見学、湖でスイミング、カヤック、湖畔で夕日を眺めるワイン。",
+        desc_en: "✨ Medieval charm on a volcanic lake. Access: Train from Roma Termini to Bracciano (50-60 min), then a short walk. \n\n🏰 What to do: Explore the imposing Orsini-Odescalchi Castle (a favorite for celebrity weddings), swim in the crystal-clear waters of Lake Bracciano, rent a kayak or paddleboard, and enjoy a sunset aperitivo at a lakeside trattoria. The historic center is a maze of cobbled alleys leading to panoramic viewpoints.\n\n🍝 Local tip: Try the lakefish specialties – ‘coregone’ (whitefish) is a must.",
+        desc_it: "✨ Fascino medievale su un lago vulcanico. Accesso: Treno da Roma Termini a Bracciano (50-60 min), poi breve passeggiata.\n\n🏰 Cosa fare: Visita il Castello Orsini-Odescalchi (meta di matrimoni celebri), nuota nelle acque limpide del lago, noleggia un kayak e goditi un aperitivo al tramonto in riva al lago. Il centro storico è un labirinto di vicoli acciottolati con viste panoramiche.\n\n🍝 Consiglio locale: Assaggia il coregone (pesce bianco) del lago.",
+        desc_ja: "✨ 火山湖に浮かぶ中世の宝石。アクセス：ローマ・テルミニ駅からブラッチャーノまで電車で約50～60分、徒歩すぐ。\n\n🏰 おすすめ：豪華なオルシーニ＝オデスカルキ城（セレブの結婚式でも有名）、透明度抜群の湖での水泳やカヤック、夕日を眺めながら湖畔でアペリティーボ。石畳の小道を歩けば絶景ポイントに。\n\n🍝 地元の味：湖の白身魚「コレゴーネ」は絶品。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJpeaeO7tSHT83pjVuGhjRruDr5hVN8Zev7dUtO94VNf__BI0vYUQ9v0I&s=10",
         officialUrl: "https://www.comune.bracciano.rm.it/",
         excerpt_en: "Lake Bracciano’s pearl, castle & crystal waters.",
         excerpt_it: "Perla del lago, castello e acque limpide.",
         excerpt_ja: "湖の真珠、城と透き通る水。" },
       { id: "trevignano", name_en: "Trevignano Romano", name_it: "Trevignano Romano", name_ja: "トレヴィニャーノ・ロマーノ",
-        desc_en: "🏞️ Hilltop village overlooking Bracciano lake. Access: from Bracciano by bus/taxi (15 min). Wander medieval alleys, lunch with panoramic terrace, hike lake shore.",
-        desc_it: "🏞️ Borgo collinare vista lago. Accesso: autobus da Bracciano. Passeggiate, terrazze panoramiche.",
-        desc_ja: "🏞️ ブラッチャーノ湖を見下ろす丘の村。バスかタクシーで。散策と絶景ランチ。",
+        desc_en: "🏞️ Hilltop village overlooking Lake Bracciano. Access: From Bracciano by bus or taxi (15 min).\n\n🚶‍♀️ Experience: Lose yourself in the medieval alleys, enjoy lunch at a terrace restaurant with breathtaking lake views, hike along the lake shore path, or simply relax in the main piazza. In summer, the lakefront becomes a lively but still peaceful gathering spot.\n\n📸 Photo spot: The belvedere near the church offers postcard-perfect shots.",
+        desc_it: "🏞️ Borgo collinare con vista sul lago di Bracciano. Accesso: Autobus o taxi da Bracciano (15 min).\n\n🚶‍♀️ Esperienza: Perditi nei vicoli medievali, pranza su una terrazza panoramica, fai un'escursione lungo la riva del lago o rilassati in piazza. D'estate il lungolago è vivace ma tranquillo.\n\n📸 Punto panoramico: Il belvedere vicino alla chiesa offre scena da cartolina.",
+        desc_ja: "🏞️ ブラッチャーノ湖を見下ろす丘の村。アクセス：ブラッチャーノからバスかタクシーで約15分。\n\n🚶‍♀️ 楽しみ方：中世の小道を散策、絶景テラスでのランチ、湖畔のハイキング。夏の湖岸は賑やかでもどこか穏やか。\n\n📸 撮影スポット：教会近くの展望台は絵葉書のような景色。",
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/4/47/Trevignano_Evening.jpg",
         officialUrl: "https://www.comune.trevignanoromano.rm.it/",
         excerpt_en: "Panoramic tranquility, lake views.",
         excerpt_it: "Tranquillità panoramica.",
         excerpt_ja: "パノラマの静けさ。" },
       { id: "anguillara", name_en: "Anguillara Sabazia", name_it: "Anguillara Sabazia", name_ja: "アングイッラーラ・サバーツィア",
-        desc_en: "💧 Picturesque village on a peninsula. Access: train Roma San Pietro→Anguillara (45 min). Lakeside promenade, swimming, fresh fish dinner, sunset pier walk.",
-        desc_it: "💧 Penisola romantica. Accesso: treno. Promenade sul lago, spiaggia libera, pesce fresco.",
-        desc_ja: "💧 半島の美しい村。電車で。湖畔散歩、水泳、夕暮れの桟橋。",
+        desc_en: "💧 Picturesque village on a peninsula jutting into Lake Bracciano. Access: Train from Roma San Pietro to Anguillara (45 min).\n\n🌅 Highlights: Stroll the lakeside promenade, swim at the free beach ‘La Spiaggietta’, enjoy freshly caught fish at a waterside restaurant, and walk the old pier at sunset. The village has a timeless, romantic atmosphere.\n\n🍷 Local wine: Pair your meal with a cold Frascati or local white.",
+        desc_it: "💧 Villaggio pittoresco su una penisola nel lago di Bracciano. Accesso: Treno da Roma San Pietro ad Anguillara (45 min).\n\n🌅 Cosa fare: Passeggiata sul lungolago, nuotata alla Spiaggietta, cena a base di pesce fresco, e passeggiata sul vecchio molo al tramonto. Atmosfera romantica senza tempo.\n\n🍷 Vino: Accompagna con un Frascati fresco.",
+        desc_ja: "💧 ブラッチャーノ湖に突き出た半島の絵のような村。アクセス：ローマ・サン・ピエトロ駅から電車で約45分。\n\n🌅 見どころ：湖畔の遊歩道、無料ビーチ「ラ・スピアッジェッタ」での水泳、夕暮れ時の古い桟橋。タイムレスなロマンチックな雰囲気。\n\n🍷 地元ワイン：冷えたフラスカーティとともに。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToYf38EKFq1zBgQbe8s4r7SCFFXyw5921vhEpZmOdEWg&s=10",
         officialUrl: "https://www.comune.anguillarasabazia.rm.it/",
         excerpt_en: "Romantic peninsula & lake charm.",
         excerpt_it: "Penisola romantica.",
         excerpt_ja: "ロマンチックな半島。" },
       { id: "frascati", name_en: "Frascati", name_it: "Frascati", name_ja: "フラスカーティ",
-        desc_en: "🍇 Wine town on Alban Hills. Access: train Roma Termini→Frascati (30 min). Villa Aldobrandini gardens, wine tasting, panoramic views of Rome.",
-        desc_it: "🍇 Città del vino. Accesso: treno. Giardini di Villa Aldobrandini, degustazione Frascati Superiore.",
-        desc_ja: "🍇 ワインの町。電車で30分。庭園巡りとワイン試飲、ローマ眺望。",
+        desc_en: "🍇 Historic wine town on the Alban Hills. Access: Train from Roma Termini to Frascati (30 min).\n\n🏛️ Must-see: Wander the gardens of Villa Aldobrandini (free public park with stunning views of Rome), taste the famous Frascati Superiore wine in ancient cantine (cellars), and enjoy a plate of porchetta at a local tavern. The town is also known for its ‘minestre’ (vegetable soups).\n\n🚶‍♀️ Walk from the station uphill through the old town – the climb is rewarded with unforgettable vistas.",
+        desc_it: "🍇 Città del vino sui Colli Albani. Accesso: Treno da Roma Termini a Frascati (30 min).\n\n🏛️ Da vedere: Giardini di Villa Aldobrandini (parco gratuito con vista su Roma), degustazione di Frascati Superiore nelle cantine storiche, porchetta nelle osterie locali. Famosa anche per le minestre.\n\n🚶‍♀️ Salita dal trenino: ne vale la pena per i panorami.",
+        desc_ja: "🍇 アルバーノ丘陵のワインの町。アクセス：ローマ・テルミニ駅から電車で約30分。\n\n🏛️ 見どころ：ヴィッラ・アルドブランディーニの庭園（無料、ローマ絶景）、フラスカーティ・スペリオーレの試飲、ポルケッタ。野菜スープも名物。\n\n🚶‍♀️ 駅から旧市街への上り坂は絶景への階段。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9HABBIobpNwjG_Dw9pcWYPev1jtJ87DvsdzflYDQ7Jg&s",
         officialUrl: "https://www.comune.frascati.rm.it/",
         excerpt_en: "White wine & Roman villa gardens.",
         excerpt_it: "Vino bianco e ville storiche.",
         excerpt_ja: "白ワインと歴史的別荘。" },
       { id: "castelgandolfo", name_en: "Castel Gandolfo", name_it: "Castel Gandolfo", name_ja: "カステル・ガンドルフォ",
-        desc_en: "🏛️ Papal summer residence on Lake Albano. Access: train Roma Termini→Castel Gandolfo (40 min). Papal gardens, lake crater stroll, ice cream with a view.",
-        desc_it: "🏛️ Residenza papale. Accesso: treno. Giardini pontifici, Lago Albano, gelato vista lago.",
-        desc_ja: "🏛️ 教皇の避暑地。電車で。教皇庭園とアルバーノ湖を望むジェラート。",
+        desc_en: "🏛️ Papal summer residence overlooking Lake Albano. Access: Train from Roma Termini to Castel Gandolfo (40 min).\n\n⛲ Experience: Visit the recently opened Papal Palaces and the Barberini Gardens (book in advance), stroll down to the crater lake for a swim or a rowboat ride, and enjoy a famous gelato from one of the lakeside shops. The panorama from the town square is simply divine.\n\n📅 Tip: The Pope’s farm produces excellent olive oil – look for it in local shops.",
+        desc_it: "🏛️ Residenza papale estiva sul lago Albano. Accesso: Treno da Roma Termini a Castel Gandolfo (40 min).\n\n⛲ Esperienza: Visita i Palazzi Pontifici e i Giardini Barberini (prenota in anticipo), scendi al lago craterico per nuotare o fare un giro in barca a remi, e gusta un gelato sul lungolago. La piazza principale ha una vista divina.\n\n📅 L'olio d'oliva della fattoria papale è eccellente.",
+        desc_ja: "🏛️ アルバーノ湖畔の教皇の避暑地。アクセス：ローマ・テルミニ駅から電車で約40分。\n\n⛲ 体験：教皇宮殿とバルベリーニ庭園（事前予約推奨）、火口湖での水泳やボート、湖畔のジェラート。広場からのパノラマはまさに神聖。\n\n📅 教皇の農園のオリーブオイルはお土産に。",
         imageUrl: "https://romesite.com/images/castel_gandolfo4.webp",
         officialUrl: "https://www.comune.castelgandolfo.rm.it/",
         excerpt_en: "Papal gardens & crater lake.",
         excerpt_it: "Giardini papali e lago craterico.",
         excerpt_ja: "教皇の庭園と火口湖。" },
       { id: "nemi", name_en: "Nemi", name_it: "Nemi", name_ja: "ネミ",
-        desc_en: "🍓 ‘Strawberry town’ overhanging Lake Nemi. Access: bus from Albano or car. Wild strawberries, Roman ship museum, birdsong silence.",
-        desc_it: "🍓 Borgo delle fragole. Bus o auto. Panorama, fragoline di bosco, museo navi romane.",
-        desc_ja: "🍓 「イチゴの町」バスか車で。野生イチゴ、ローマ船博物館。静寂。",
+        desc_en: "🍓 ‘Strawberry town’ perched above Lake Nemi. Access: Bus from Albano Laziale or by car.\n\n🍓 Experience: Stroll the vivid, flower-filled alleys, taste wild strawberries and strawberry liqueur, visit the Roman Ships Museum (housing two enormous ancient vessels recovered from the lake), and soak up the silence broken only by birdsong. The view over the circular lake is magical.\n\n🍰 Try the ‘fragoline di bosco’ (wild strawberries) with whipped cream – a local ritual.",
+        desc_it: "🍓 Cittadina delle fragole sospesa sul lago di Nemi. Accesso: Autobus da Albano Laziale o auto.\n\n🍓 Esperienza: Passeggia tra i vicoli pieni di fiori, assaggia le fragoline di bosco e il liquore alle fragole, visita il Museo delle Navi Romane (due imponenti navi antiche), e goditi il silenzio rotto solo dagli uccelli. La vista sul lago circolare è incantevole.\n\n🍰 Prova le fragoline con panna montata: un rito locale.",
+        desc_ja: "🍓 「イチゴの町」。アクセス：アルバーノ・ラツィアーレからバスまたは車。\n\n🍓 体験：花あふれる小道、野生イチゴとリキュールの試飲、ローマ船博物館（湖から引き上げた古代の巨船）、鳥のさえずりだけの静寂。円形の湖の眺めは息をのむ美しさ。\n\n🍰 生クリーム添えの野生イチゴは地元の伝統。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCXoJz8kICzJUMJk0uSI0pjC_Gr88w4KWjS6VKR_UscA&s=10",
         officialUrl: "https://www.comune.nemi.rm.it/",
         excerpt_en: "Wild strawberries & sacred lake.",
         excerpt_it: "Fragole e lago sacro.",
         excerpt_ja: "野イチゴと神聖な湖。" },
       { id: "tivoli", name_en: "Tivoli", name_it: "Tivoli", name_ja: "ティヴォリ",
-        desc_en: "🏛️ UNESCO gardens & villas. Access: train Roma Tiburtina→Tivoli (35 min). Villa d’Este fountains, Hadrian’s Villa, cool waterfalls.",
-        desc_it: "🏛️ Ville UNESCO. Accesso: treno. Fontane di Villa d’Este, Villa Adriana, cascate.",
-        desc_ja: "🏛️ 世界遺産の庭園。電車で。エステ家別荘の噴水、ハドリアヌス別荘。",
+        desc_en: "🏛️ UNESCO World Heritage gem east of Rome. Access: Train from Roma Tiburtina to Tivoli (35 min) or bus.\n\n🌿 Must-see: Villa d’Este with its hundreds of fountains (Renaissance masterpiece), Hadrian’s Villa (sprawling Roman imperial retreat), and the charming old town with its Roman Temple of Vesta. The cool breeze from the Aniene waterfalls makes Tivoli a perfect summer escape.\n\n🍝 Lunch: Try ‘gnocchi di Tivoli’ in a traditional trattoria.",
+        desc_it: "🏛️ Gioiello UNESCO a est di Roma. Accesso: Treno da Roma Tiburtina a Tivoli (35 min) o autobus.\n\n🌿 Da vedere: Villa d'Este con le sue centinaia di fontane (capolavoro rinascimentale), Villa Adriana (vasta residenza imperiale romana), e il centro medievale con il Tempio di Vesta. La brezza fresca delle cascate dell'Aniene rende Tivoli perfetta per l'estate.\n\n🍝 Primo piatto: Gli gnocchi di Tivoli.",
+        desc_ja: "🏛️ ローマ東部のユネスコ世界遺産。アクセス：ローマ・ティブルティーナ駅から電車で約35分、またはバス。\n\n🌿 必見：数百の噴水があるエステ家別荘（ルネサンスの傑作）、ハドリアヌス別荘（広大なローマ帝国の別荘）、そしてヴェスタ神殿のある旧市街。アニエーネ滝の涼しい風が夏の避暑に最適。\n\n🍝 ランチ：伝統的なニョッキ・ディ・ティヴォリを。",
         imageUrl: "https://www.turismoroma.it/sites/default/files/Tivoli%20pixabay%201920x1080.jpg",
         officialUrl: "https://www.comune.tivoli.rm.it/",
         excerpt_en: "Renaissance gardens & roman ruins.",
         excerpt_it: "Giardini rinascimentali e rovine romane.",
         excerpt_ja: "ルネサンス庭園とローマ遺跡。" },
       { id: "cerveteri", name_en: "Cerveteri", name_it: "Cerveteri", name_ja: "チェルヴェーテリ",
-        desc_en: "🏺 Etruscan necropolis (UNESCO). Access: train Roma Ostiense→Cerveteri (45 min). Quiet hours among tumuli, museum, agriturismo relax.",
-        desc_it: "🏺 Necropoli etrusca UNESCO. Accesso: treno. Atmosfera mistica e silenzio.",
-        desc_ja: "🏺 エトルリア人のネクロポリス。電車で。静かな古代探訪。",
+        desc_en: "🏺 Etruscan necropolis, a UNESCO World Heritage site. Access: Train from Roma Ostiense to Cerveteri (45 min).\n\n🗿 Experience: Walk among the silent tumuli (circular tombs) of the Banditaccia Necropolis – it feels like stepping into another world. Visit the National Etruscan Museum in town, then relax at a local agriturismo serving rustic Roman countryside cuisine. The site is less crowded than many Roman ruins, offering true peace.\n\n📜 History: These tombs date from the 9th to 3rd century BCE.",
+        desc_it: "🏺 Necropoli etrusca, patrimonio UNESCO. Accesso: Treno da Roma Ostiense a Cerveteri (45 min).\n\n🗿 Esperienza: Cammina tra i tumuli silenziosi della Necropoli della Banditaccia – sembra di entrare in un altro mondo. Visita il Museo Nazionale Etrusco, poi rilassati in un agriturismo. Molto meno affollato di altri siti.\n\n📜 Storia: Tombe dal IX al III secolo a.C.",
+        desc_ja: "🏺 エトルリア人のネクロポリス、ユネスコ世界遺産。アクセス：ローマ・オスティエンセ駅から電車で約45分。\n\n🗿 体験：静かな墳丘墓（バンディタッチャ）を散歩。まるで別世界。エトルリア国立博物館、その後アグリツーリズモで田舎料理。ローマの他の遺跡よりずっと静か。\n\n📜 紀元前9世紀から3世紀の歴史。",
         imageUrl: "https://images.winalist.com/blog/wp-content/uploads/2025/07/31115710/adobestock-536078800-1500x773.jpeg",
         officialUrl: "https://www.comune.cerveteri.rm.it/",
         excerpt_en: "Ancient Etruscan silence.",
         excerpt_it: "Antico silenzio etrusco.",
         excerpt_ja: "古代エトルリアの静寂。" },
       { id: "sangregorio", name_en: "San Gregorio da Sassola", name_it: "San Gregorio da Sassola", name_ja: "サン・グレゴリオ・ダ・サッソラ",
-        desc_en: "🌿 Hidden medieval gem. Access: bus from Roma Ponte Mammolo (1h) or car. Cobblestone lanes, panoramic picnic, countryside walk.",
-        desc_it: "🌿 Gioiello medievale. Bus da Roma. Passeggiate, natura incontaminata.",
-        desc_ja: "🌿 隠れた中世の宝石。バスで。石畳と田園散策。",
+        desc_en: "🌿 Hidden medieval gem in the green countryside. Access: Bus from Roma Ponte Mammolo (1 hour) or by car.\n\n🍃 Escape: Wander the cobblestone lanes with almost no tourists, enjoy a panoramic picnic on the hillside, and walk the nature trails in the surrounding oak forests. The village feels suspended in time – perfect for writers, artists, or anyone seeking true silence.\n\n📖 Local story: The village was once a feudal domain of the Borghese family.",
+        desc_it: "🌿 Gioiello medievale nascosto nella campagna verde. Accesso: Autobus da Roma Ponte Mammolo (1 ora) o auto.\n\n🍃 Fuga: Passeggia per i vicoli di ciottoli senza quasi turisti, fai un picnic panoramico, e percorri i sentieri nei boschi di querce. Il villaggio sembra sospeso nel tempo – ideale per scrittori, artisti e chi cerca vero silenzio.\n\n📖 Storia: Fu un feudo della famiglia Borghese.",
+        desc_ja: "🌿 緑の田園に隠れた中世の宝石。アクセス：ローマ・ポンテ・マンモロからバスで約1時間、または車。\n\n🍃 逃避行：ほとんど観光客のいない石畳の小道を散策、丘でパノラマピクニック、周囲のオークの森のトレイル。時間が止まったような村。\n\n📖 昔、ボルゲーゼ家の領地でした。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAYCijVQKPvcB4q9ZkbURnUlW5sEvxb5rIbwh5n35ZVg&s",
         officialUrl: "http://www.comune.sangregoriodasassola.rm.it/",
         excerpt_en: "Timeless village & green hills.",
         excerpt_it: "Borgo senza tempo.",
         excerpt_ja: "時が止まった村。" },
       { id: "olevano", name_en: "Olevano Romano", name_it: "Olevano Romano", name_ja: "オレーヴァノ・ロマーノ",
-        desc_en: "🎨 Painter’s refuge. Access: train Roma→Colleferro then bus. Fresh mountain air, medieval fortress, trekking in Monti Prenestini.",
-        desc_it: "🎨 Borgo degli artisti. Accesso: treno+bus. Aria fresca e trekking.",
-        desc_ja: "🎨 芸術家の村。電車＋バス。トレッキングと中世の要塞。",
+        desc_en: "🎨 Painter’s refuge in the Monti Prenestini mountains. Access: Train from Roma Termini to Colleferro, then bus.\n\n🎨 Immerse: Breathe fresh mountain air, climb to the medieval fortress for 360° views, hike the mountain trails of Monti Prenestini, and explore the many art exhibitions that carry on the town’s legacy as a 19th-century artist colony. The light here has attracted painters for generations.\n\n🥾 Trail: Take the ‘Sentiero dei Pittori’ (Painters’ Path).",
+        desc_it: "🎨 Rifugio degli artisti nei Monti Prenestini. Accesso: Treno da Roma Termini a Colleferro, poi autobus.\n\n🎨 Immersione: Aria fresca di montagna, sali alla fortezza medievale per viste a 360°, escursioni sui sentieri dei Monti Prenestini, e mostre d'arte che continuano la tradizione della colonia di artisti dell'800. La luce qui ha attratto generazioni di pittori.\n\n🥾 Sentiero dei Pittori.",
+        desc_ja: "🎨 モンティ・プレネスティーニの芸術家の隠れ家。アクセス：ローマ・テルミニ駅からコッレフェッロまで電車、その後バス。\n\n🎨 浸る：爽やかな山の空気、中世の要塞への登山（360度の眺め）、プレネスティーニ山脈のトレッキング、19世紀の芸術家植民地の伝統を継ぐアート展示。この光は画家たちを魅了してきた。\n\n🥾 「画家の道」ハイキングコース。",
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/8/81/%28Claudius_Ziehr%29_Olevano_02.jpg",
         officialUrl: "https://www.comune.olevanoromano.rm.it/",
         excerpt_en: "Artistic legacy & mountain calm.",
         excerpt_it: "Calma dei monti.",
         excerpt_ja: "芸術と山の静寂。" },
       { id: "arsoli", name_en: "Arsoli", name_it: "Arsoli", name_ja: "アルソリ",
-        desc_en: "📚 ‘Little Paris’ in Aniene valley. Access: train Roma→Arsoli (FL2). Magnificent castle, quiet reading corners, slow food, river walks.",
-        desc_it: "📚 Piccola Parigi. Accesso: treno. Castello, passeggiate fluviali.",
-        desc_ja: "📚 「小さなパリ」。電車で。城と川辺の散策、スローフード。",
+        desc_en: "📚 ‘Little Paris’ tucked in the Aniene valley. Access: Train from Roma Termini to Arsoli (FL2 regional line).\n\n🏰 Discover: Explore the majestic Castle of Arsoli (still privately owned but open for visits), find quiet reading corners in the old town, taste slow food specialties like local pecorino cheese and truffles, and walk along the Aniene river. The literary atmosphere is palpable.\n\n📖 Fun fact: The writer Gabriele D’Annunzio once stayed here.",
+        desc_it: "📚 «Piccola Parigi» nella valle dell'Aniene. Accesso: Treno da Roma Termini ad Arsoli (linea FL2).\n\n🏰 Scoperta: Esplora il maestoso Castello di Arsoli (ancora privato ma visitabile), angoli di lettura silenziosi, specialità a km zero come pecorino e tartufo, e passeggiate lungo il fiume. Atmosfera letteraria palpabile.\n\n📖 Curiosità: Gabriele D’Annunzio vi soggiornò.",
+        desc_ja: "📚 アニエーネ渓谷の「小さなパリ」。アクセス：ローマ・テルミニ駅からアルソリまで電車（FL2線）。\n\n🏰 発見：荘厳なアルソリ城（現在も私有だが見学可能）、旧市街の静かな読書スポット、ペコリーノチーズやトリュフなどのスローフード、アニエーネ川沿いの散歩。文学的な雰囲気。\n\n📖 ダンヌンツィオも滞在したことがあります。",
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/cb/Arsoli_01.jpg",
         officialUrl: "https://www.comune.arsoli.rm.it/",
         excerpt_en: "Castle & literary atmosphere.",
         excerpt_it: "Castello e atmosfera letteraria.",
         excerpt_ja: "城と文学的な雰囲気。" },
       { id: "palestrina", name_en: "Palestrina", name_it: "Palestrina", name_ja: "パレストリーナ",
-        desc_en: "🏛️ Ancient Praeneste, Sanctuary of Fortuna. Access: bus from Roma Anagnina (40 min). Terraced sanctuary, archaeological museum, mosaic floors.",
-        desc_it: "🏛️ Antica Praeneste. Accesso: bus. Santuario della Fortuna, museo archeologico.",
-        desc_ja: "🏛️ 古代プラエネステ。バスで。フォルトゥーナ聖域とモザイク。",
+        desc_en: "🏛️ Ancient Praeneste, home to the massive Sanctuary of Fortuna Primigenia. Access: Bus from Roma Anagnina (40 min).\n\n🏺 Explore: Climb the terraced sanctuary (one of the largest and best-preserved Roman cult complexes), admire the famous Nile Mosaic in the Archaeological Museum, and take in breathtaking views over the Latium plains. The town is filled with layers of history – from pre-Roman to medieval.\n\n🎭 Festivals: In summer, classical theater performances are held in the sanctuary.",
+        desc_it: "🏛️ Antica Praeneste, sede del grande Santuario della Fortuna Primigenia. Accesso: Autobus da Roma Anagnina (40 min).\n\n🏺 Esplora: Sali il santuario terrazzato (uno dei più grandi complessi romani), ammira il famoso Mosaico del Nilo nel Museo Archeologico, e goditi la vista mozzafiato sulla pianura laziale. Strati di storia dal pre-romano al medievale.\n\n🎭 Estate: spettacoli teatrali classici nel santuario.",
+        desc_ja: "🏛️ 古代プラエネステ、フォルトゥーナ・プリミジェニアの壮大な聖域。アクセス：ローマ・アナニーニャからバスで約40分。\n\n🏺 探検：段々になった聖域を登る（ローマ最大級の神殿遺跡）、考古学博物館の有名なナイルのモザイク、ラツィオ平原の絶景。町は先ローマ時代から中世までの歴史の層。\n\n🎭 夏は聖域で古典演劇の公演も。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSv7DCVazaHQoRYmrzuQY0AMaAdWJhRRAr27F7p8-uT-1ZKme-yno30Eem&s=10",
         officialUrl: "https://www.comune.palestrina.rm.it/",
         excerpt_en: "Mighty sanctuary & roman heritage.",
@@ -464,7 +469,7 @@
         excerpt_ja: "壮大な聖域とローマ遺産。" }
     ];
 
-    // ---------- SPONSORS ----------
+    // ---------- SPONSORS (unchanged) ----------
     const sponsorsConfig = {
       top: [
         { name: "Visit Lazio", img: "https://placehold.co/80x80/e6d5b8/4f3e2e?text=Lazio", url: "https://www.visitlazio.com/" },
@@ -487,7 +492,7 @@
       `).join('');
     }
 
-    // ---------- I18N State ----------
+    // ---------- I18N STATE ----------
     let currentLang = "en";
     let currentView = "list";
     let currentDetailId = null;
@@ -526,11 +531,11 @@
       const official = place.officialUrl;
       return `
         <div class="detail-view">
-          <button class="back-btn" id="backToListBtn">← Back to escapes</button>
+          <button class="back-btn" id="backToListBtn">← ${currentLang === 'en' ? 'Back to escapes' : (currentLang === 'it' ? 'Torna alle località' : '一覧に戻る')}</button>
           <img class="detail-img" src="${place.imageUrl}" alt="${name}" onerror="this.src='https://placehold.co/800x500/4d6a5b/f9f2e8?text=Image'">
           <h2 class="detail-title">${name}</h2>
           <div class="detail-desc">${desc.replace(/\n/g, '<br>')}</div>
-          ${official ? `<a class="official-link" href="${official}" target="_blank" rel="noopener noreferrer">🏛️ ${currentLang === 'it' ? 'Sito ufficiale' : (currentLang === 'ja' ? '公式観光サイト' : 'Official Tourism Website')}</a>` : ''}
+          ${official ? `<a class="official-link" href="${official}" target="_blank" rel="noopener noreferrer">🏛️ ${currentLang === 'it' ? 'Sito ufficiale / Ufficio turismo' : (currentLang === 'ja' ? '公式観光サイト' : 'Official Tourism Website')}</a>` : ''}
         </div>`;
     }
 
@@ -541,7 +546,8 @@
         attachCardListeners();
       } else if (currentView === 'detail' && currentDetailId) {
         mainDiv.innerHTML = renderDetail(currentDetailId);
-        document.getElementById('backToListBtn')?.addEventListener('click', navigateToList);
+        const backBtn = document.getElementById('backToListBtn');
+        if (backBtn) backBtn.addEventListener('click', navigateToList);
       }
       document.getElementById('sponsorTopArea').innerHTML = renderSponsors(sponsorsConfig.top);
       document.getElementById('sponsorBottomArea').innerHTML = renderSponsors(sponsorsConfig.bottom);
@@ -586,36 +592,31 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
-    // ========== 3. MAP: Google Maps優先 + Leaflet fallback ==========
+    // ========== MAP: Google Maps優先 + Leaflet fallback ==========
     let mapFallbackActive = false;
     function initMap() {
       const googleIframe = document.getElementById('googleMapIframe');
       const leafletDiv = document.getElementById('leafletFallback');
       const note = document.getElementById('mapNote');
 
-      // もしAPIキーがプレースホルダーまたは無効なら Leaflet を使う
       if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === "YOUR_API_KEY") {
         activateLeaflet();
         note.innerText = "🗺️ OpenStreetMap (Google Maps API key not set)";
         return;
       }
 
-      // Google Maps iframe を構成 (Embed API - キー必須)
       const center = "41.9028,12.4964";
       const zoom = 10;
       const src = `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=Roma+Italy&center=${center}&zoom=${zoom}&language=${currentLang || 'en'}`;
       googleIframe.src = src;
       
-      // 読み込みテスト: iframeのonloadで成功とみなすが、エラー時は Leaflet へ
       googleIframe.onload = () => {
-        // 簡易チェック: もし中身がエラーページだった場合を想定（クロスドメインなので完全には見れないが、少なくとも何か表示される）
         googleIframe.style.display = "block";
         leafletDiv.style.display = "none";
         note.innerText = "🗺️ Google Maps (Powered by Google)";
         mapFallbackActive = false;
       };
       googleIframe.onerror = () => activateLeaflet();
-      // タイムアウトで念のためフォールバック (5秒後も表示されなければ)
       setTimeout(() => {
         if (googleIframe.style.display !== "block" && !mapFallbackActive) {
           activateLeaflet();
@@ -634,7 +635,6 @@
       googleIframe.style.display = "none";
       leafletDiv.style.display = "block";
       if (!window.L) {
-        // Leafletライブラリがまだ読み込まれていれば、読み込む
         const script = document.createElement('script');
         script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
         script.onload = () => drawLeafletMap();
@@ -680,11 +680,10 @@
       refreshUI();
       window.history.replaceState({ view: 'list' }, '', '#list');
       setLanguage('en');
-      initMap();  // 地図初期化（Google優先・キーなければLeaflet）
+      initMap();
     }
     init();
 
-    // Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW error', err));
