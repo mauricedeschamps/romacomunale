@@ -10,10 +10,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icons/icon-192.jpg">
-  <!-- Leaflet CSS + JS (OpenStreetMap) -->
+  <!-- Leaflet CSS (for fallback) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Google Fonts & minimal reset -->
+  <!-- Google Fonts & reset -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -30,7 +29,6 @@
       line-height: 1.5;
     }
 
-    /* DARK MODE (default) */
     body.dark {
       background: #121212;
       color: #eaeef2;
@@ -60,7 +58,6 @@
       border-color: #2d2d3a;
     }
 
-    /* light overrides */
     body:not(.dark) {
       background: #fefaf5;
     }
@@ -86,7 +83,6 @@
       padding: 1.2rem 1.5rem 2rem;
     }
 
-    /* header */
     .header-bar {
       display: flex;
       flex-wrap: wrap;
@@ -127,14 +123,7 @@
     .btn-icon.lang {
       min-width: 76px;
     }
-    .btn-sponsor {
-      font-size: 0.7rem;
-      background: #ffd96630;
-      border-radius: 20px;
-      padding: 0.2rem 0.8rem;
-    }
 
-    /* sponsor rows */
     .sponsor-row {
       display: flex;
       flex-wrap: wrap;
@@ -183,7 +172,6 @@
       color: #bbb;
     }
 
-    /* cards grid */
     .places-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -232,7 +220,6 @@
       margin-top: 0.7rem;
     }
 
-    /* detail view */
     .detail-view {
       background: inherit;
       border-radius: 32px;
@@ -299,11 +286,24 @@
       overflow: hidden;
       height: 280px;
       background: #2c2c2e;
+      position: relative;
     }
-    #leafletMap {
-      height: 100%;
+    #googleMapIframe, #leafletFallback {
       width: 100%;
-      z-index: 1;
+      height: 100%;
+      border: 0;
+    }
+    .map-fallback-note {
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      z-index: 10;
+      pointer-events: none;
     }
     hr {
       margin: 1rem 0;
@@ -333,9 +333,11 @@
     <div id="mainContent"></div>
     <div id="sponsorBottomArea" class="sponsor-row"></div>
 
-    <!-- Leaflet Map (centered on Rome, no API key needed) -->
-    <div class="map-container">
-      <div id="leafletMap"></div>
+    <!-- Map area: Google Maps (with your API key) + fallback Leaflet -->
+    <div class="map-container" id="mapContainer">
+      <iframe id="googleMapIframe" style="display:none" allowfullscreen></iframe>
+      <div id="leafletFallback" style="height:100%; width:100%; display:none"></div>
+      <div class="map-fallback-note" id="mapNote"></div>
     </div>
 
     <div class="footer">
@@ -345,6 +347,11 @@
   </div>
 
   <script>
+    // ============================================================
+    // 🔑 ここにあなたの Google Maps API キーを貼り付けてください
+    const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY";   // ← この文字列を実際のキーに置き換える
+    // ============================================================
+
     // ---------- 1. PLACES DATA (with imageUrl) ----------
     const placesData = [
       { id: "bracciano", name_en: "Bracciano", name_it: "Bracciano", name_ja: "ブラッチャーノ",
@@ -457,7 +464,7 @@
         excerpt_ja: "壮大な聖域とローマ遺産。" }
     ];
 
-    // ---------- SPONSORS (anyone can add/remove) ----------
+    // ---------- SPONSORS ----------
     const sponsorsConfig = {
       top: [
         { name: "Visit Lazio", img: "https://placehold.co/80x80/e6d5b8/4f3e2e?text=Lazio", url: "https://www.visitlazio.com/" },
@@ -469,20 +476,19 @@
     };
 
     function renderSponsors(sponsors) {
-      if (!sponsors.length) return '';
       return sponsors.map(sp => `
         <div class="sponsor-card">
           <img src="${sp.img}" alt="${sp.name}" loading="lazy" onerror="this.src='https://placehold.co/80x80/gray/white?text=sponsor'">
           <div class="sponsor-info">
             <a href="${sp.url}" target="_blank" rel="noopener noreferrer">${sp.name}</a>
-            <div class="note-add" style="font-size:0.7rem">➕ Official website</div>
+            <div class="note-add">➕ Official website</div>
           </div>
         </div>
       `).join('');
     }
 
-    // ---------- I18N & UI ----------
-    let currentLang = "en";   // en, it, ja
+    // ---------- I18N State ----------
+    let currentLang = "en";
     let currentView = "list";
     let currentDetailId = null;
 
@@ -501,20 +507,15 @@
     }
 
     function renderList() {
-      return `
-        <div class="places-grid">
-          ${placesData.map(place => `
-            <div class="card" data-id="${place.id}">
-              <img class="card-img" src="${place.imageUrl}" alt="${place.name_en}" loading="lazy" onerror="this.src='https://placehold.co/600x400/5f7a6c/ffffff?text=Image'">
-              <div class="card-content">
-                <div class="card-title">${getLocalizedText(place, 'name')}</div>
-                <div class="card-excerpt">${getLocalizedText(place, 'excerpt')}</div>
-                <div class="badge">🌿 relax · natura</div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
+      return `<div class="places-grid">${placesData.map(place => `
+        <div class="card" data-id="${place.id}">
+          <img class="card-img" src="${place.imageUrl}" alt="${place.name_en}" loading="lazy" onerror="this.src='https://placehold.co/600x400/5f7a6c/ffffff?text=Image'">
+          <div class="card-content">
+            <div class="card-title">${getLocalizedText(place, 'name')}</div>
+            <div class="card-excerpt">${getLocalizedText(place, 'excerpt')}</div>
+            <div class="badge">🌿 relax · natura</div>
+          </div>
+        </div>`).join('')}</div>`;
     }
 
     function renderDetail(placeId) {
@@ -523,17 +524,14 @@
       const name = getLocalizedText(place, 'name');
       const desc = getLocalizedText(place, 'desc');
       const official = place.officialUrl;
-      const imgUrl = place.imageUrl;
       return `
         <div class="detail-view">
           <button class="back-btn" id="backToListBtn">← Back to escapes</button>
-          <img class="detail-img" src="${imgUrl}" alt="${name}" onerror="this.src='https://placehold.co/800x500/4d6a5b/f9f2e8?text=Image'">
+          <img class="detail-img" src="${place.imageUrl}" alt="${name}" onerror="this.src='https://placehold.co/800x500/4d6a5b/f9f2e8?text=Image'">
           <h2 class="detail-title">${name}</h2>
           <div class="detail-desc">${desc.replace(/\n/g, '<br>')}</div>
-          ${official ? `<a class="official-link" href="${official}" target="_blank" rel="noopener noreferrer">🏛️ ${currentLang === 'it' ? 'Sito ufficiale / Ufficio turismo' : (currentLang === 'ja' ? '公式観光サイト' : 'Official Tourism Website')}</a>` : ''}
-          <div style="margin-top: 1rem; font-size:0.85rem; opacity:0.7;">📍 ${currentLang === 'it' ? 'Accesso e suggerimenti sopra' : (currentLang === 'ja' ? 'アクセス＆過ごし方は上記参照' : 'Access & tips included above')}</div>
-        </div>
-      `;
+          ${official ? `<a class="official-link" href="${official}" target="_blank" rel="noopener noreferrer">🏛️ ${currentLang === 'it' ? 'Sito ufficiale' : (currentLang === 'ja' ? '公式観光サイト' : 'Official Tourism Website')}</a>` : ''}
+        </div>`;
     }
 
     function refreshUI() {
@@ -543,8 +541,7 @@
         attachCardListeners();
       } else if (currentView === 'detail' && currentDetailId) {
         mainDiv.innerHTML = renderDetail(currentDetailId);
-        const backBtn = document.getElementById('backToListBtn');
-        if (backBtn) backBtn.addEventListener('click', navigateToList);
+        document.getElementById('backToListBtn')?.addEventListener('click', navigateToList);
       }
       document.getElementById('sponsorTopArea').innerHTML = renderSponsors(sponsorsConfig.top);
       document.getElementById('sponsorBottomArea').innerHTML = renderSponsors(sponsorsConfig.bottom);
@@ -581,8 +578,7 @@
 
     function initTheme() {
       const isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && true);
-      if (isDark) document.body.classList.add('dark');
-      else document.body.classList.remove('dark');
+      document.body.classList.toggle('dark', isDark);
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
     function toggleTheme() {
@@ -590,58 +586,108 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
-    // ---------- LEALFET MAP (Rome center, no API key) ----------
-    let map;
+    // ========== 3. MAP: Google Maps優先 + Leaflet fallback ==========
+    let mapFallbackActive = false;
     function initMap() {
-      const mapDiv = document.getElementById('leafletMap');
-      if (mapDiv && !map) {
-        map = L.map('leafletMap').setView([41.9028, 12.4964], 10);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
-          subdomains: 'abcd',
-          maxZoom: 18,
-          minZoom: 6
-        }).addTo(map);
-        // Optional: add a marker for Rome
-        L.marker([41.9028, 12.4964]).addTo(map).bindPopup("Roma • Starting point");
+      const googleIframe = document.getElementById('googleMapIframe');
+      const leafletDiv = document.getElementById('leafletFallback');
+      const note = document.getElementById('mapNote');
+
+      // もしAPIキーがプレースホルダーまたは無効なら Leaflet を使う
+      if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === "YOUR_API_KEY") {
+        activateLeaflet();
+        note.innerText = "🗺️ OpenStreetMap (Google Maps API key not set)";
+        return;
+      }
+
+      // Google Maps iframe を構成 (Embed API - キー必須)
+      const center = "41.9028,12.4964";
+      const zoom = 10;
+      const src = `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=Roma+Italy&center=${center}&zoom=${zoom}&language=${currentLang || 'en'}`;
+      googleIframe.src = src;
+      
+      // 読み込みテスト: iframeのonloadで成功とみなすが、エラー時は Leaflet へ
+      googleIframe.onload = () => {
+        // 簡易チェック: もし中身がエラーページだった場合を想定（クロスドメインなので完全には見れないが、少なくとも何か表示される）
+        googleIframe.style.display = "block";
+        leafletDiv.style.display = "none";
+        note.innerText = "🗺️ Google Maps (Powered by Google)";
+        mapFallbackActive = false;
+      };
+      googleIframe.onerror = () => activateLeaflet();
+      // タイムアウトで念のためフォールバック (5秒後も表示されなければ)
+      setTimeout(() => {
+        if (googleIframe.style.display !== "block" && !mapFallbackActive) {
+          activateLeaflet();
+          note.innerText = "🗺️ OpenStreetMap (Google Maps failed to load)";
+        }
+      }, 3000);
+      googleIframe.style.display = "block";
+      leafletDiv.style.display = "none";
+    }
+
+    function activateLeaflet() {
+      const leafletDiv = document.getElementById('leafletFallback');
+      const googleIframe = document.getElementById('googleMapIframe');
+      if (mapFallbackActive) return;
+      mapFallbackActive = true;
+      googleIframe.style.display = "none";
+      leafletDiv.style.display = "block";
+      if (!window.L) {
+        // Leafletライブラリがまだ読み込まれていれば、読み込む
+        const script = document.createElement('script');
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        script.onload = () => drawLeafletMap();
+        document.head.appendChild(script);
+      } else {
+        drawLeafletMap();
       }
     }
-    window.addEventListener('load', () => {
-      initMap();
-    });
 
+    function drawLeafletMap() {
+      const leafletDiv = document.getElementById('leafletFallback');
+      if (leafletDiv._leaflet_map) return;
+      const map = L.map(leafletDiv).setView([41.9028, 12.4964], 10);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+        subdomains: 'abcd',
+        maxZoom: 18
+      }).addTo(map);
+      L.marker([41.9028, 12.4964]).addTo(map).bindPopup("Roma • Starting point");
+      leafletDiv._leaflet_map = map;
+    }
+
+    // ---------- History & Init ----------
     window.addEventListener('popstate', (event) => {
       const state = event.state;
       if (state && state.view === 'detail') {
         currentView = 'detail';
         currentDetailId = state.id;
-        refreshUI();
       } else {
         currentView = 'list';
         currentDetailId = null;
-        refreshUI();
       }
+      refreshUI();
     });
 
     function init() {
       initTheme();
       document.getElementById('themeToggle').addEventListener('click', toggleTheme);
       document.querySelectorAll('[data-lang]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          setLanguage(btn.getAttribute('data-lang'));
-        });
+        btn.addEventListener('click', () => setLanguage(btn.getAttribute('data-lang')));
       });
       currentView = 'list';
       refreshUI();
       window.history.replaceState({ view: 'list' }, '', '#list');
       setLanguage('en');
+      initMap();  // 地図初期化（Google優先・キーなければLeaflet）
     }
     init();
-  </script>
-  <script>
+
+    // Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered', reg)).catch(err => console.warn('SW error', err));
+        navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW error', err));
       });
     }
   </script>
