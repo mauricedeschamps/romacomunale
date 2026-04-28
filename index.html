@@ -10,6 +10,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icons/icon-192.jpg">
+  <!-- Leaflet CSS + JS (OpenStreetMap) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Google Fonts & minimal reset -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <style>
@@ -162,6 +165,10 @@
     .sponsor-info a {
       font-weight: 600;
       text-decoration: none;
+      color: inherit;
+    }
+    .sponsor-info a:hover {
+      text-decoration: underline;
     }
     .note-add {
       font-size: 0.7rem;
@@ -290,12 +297,13 @@
       margin: 1.8rem 0 1rem;
       border-radius: 28px;
       overflow: hidden;
-      height: 260px;
+      height: 280px;
+      background: #2c2c2e;
     }
-    iframe {
-      width: 100%;
+    #leafletMap {
       height: 100%;
-      border: 0;
+      width: 100%;
+      z-index: 1;
     }
     hr {
       margin: 1rem 0;
@@ -308,11 +316,10 @@
 </head>
 <body class="dark">
   <div class="container" id="app">
-    <!-- header -->
     <div class="header-bar">
       <div class="logo">
-        <h1>✨ Lazio Quiet Escapes</h1>
-        <p>Roman countryside · lakes · medieval silence</p>
+        <h1 id="siteTitle">✨ Lazio Quiet Escapes</h1>
+        <p id="siteSub">Roman countryside · lakes · medieval silence</p>
       </div>
       <div class="controls">
         <button class="btn-icon lang" data-lang="en">🇬🇧 English</button>
@@ -322,24 +329,13 @@
       </div>
     </div>
 
-    <!-- SPONSOR TOP (dynamic) -->
     <div id="sponsorTopArea" class="sponsor-row"></div>
-
-    <!-- DYNAMIC CONTENT: main list or detail view -->
     <div id="mainContent"></div>
-
-    <!-- SPONSOR BOTTOM (dynamic) -->
     <div id="sponsorBottomArea" class="sponsor-row"></div>
 
-    <!-- GOOGLE MAP (centered on Rome) -->
+    <!-- Leaflet Map (centered on Rome, no API key needed) -->
     <div class="map-container">
-      <iframe 
-        id="gmap-frame"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=Roma+Italy&center=41.9028,12.4964&zoom=10&language=en"
-        allowfullscreen>
-      </iframe>
+      <div id="leafletMap"></div>
     </div>
 
     <div class="footer">
@@ -349,114 +345,119 @@
   </div>
 
   <script>
-    // --------------------------------------------------------------
-    // 1. DATA: 12 places (Bracciano included) + comprehensive info
-    //    each place has: id, name_{en,it,ja}, description_{en,it,ja}
-    //    (includes access + how to enjoy), image placeholder, official URL
-    // --------------------------------------------------------------
+    // ---------- 1. PLACES DATA (with imageUrl) ----------
     const placesData = [
       { id: "bracciano", name_en: "Bracciano", name_it: "Bracciano", name_ja: "ブラッチャーノ",
-        desc_en: "✨ Medieval charm on volcanic lake. ⛲ Access: train Roma Termini→Bracciano (50-60 min) + short walk. 🚣 Relax: Visit Orsini-Odescalchi Castle, swim in crystal lake, rent a kayak, sunset aperitivo by the water. Escape crowds and enjoy lakefront trattorias.",
-        desc_it: "✨ Fascino medievale sul lago vulcanico. 🚆 Accesso: treno da Roma Termini a Bracciano (50-60 min). 🛶 Relax: Castello Orsini-Odescalchi, nuotata nel lago, giri in kayak, tramonto con aperitivo. Perfetto per una pausa silenziosa.",
-        desc_ja: "✨ 中世の趣と火山湖。🚆 アクセス：ローマ・テルミニ駅から電車で約1時間。🛶 過ごし方：オルシーニ城見学、湖でスイミング、カヤック、湖畔で夕日を眺めるワイン。喧騒を離れた静寂。",
-        imageLabel: "Bracciano Lakefront",
+        desc_en: "✨ Medieval charm on volcanic lake. Access: train Roma Termini→Bracciano (50-60 min) + short walk. Relax: Visit Orsini-Odescalchi Castle, swim in crystal lake, rent a kayak, sunset aperitivo by the water.",
+        desc_it: "✨ Fascino medievale sul lago vulcanico. Accesso: treno da Roma Termini a Bracciano (50-60 min). Relax: Castello Orsini-Odescalchi, nuotata nel lago, giri in kayak, tramonto con aperitivo.",
+        desc_ja: "✨ 中世の趣と火山湖。アクセス：ローマ・テルミニ駅から電車で約1時間。過ごし方：オルシーニ城見学、湖でスイミング、カヤック、湖畔で夕日を眺めるワイン。",
+        imageUrl: "https://images.unsplash.com/photo-1585487000160-6ebcfceb6590?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.bracciano.rm.it/",
-        colorBg: "#3b5e4a",
         excerpt_en: "Lake Bracciano’s pearl, castle & crystal waters.",
         excerpt_it: "Perla del lago, castello e acque limpide.",
         excerpt_ja: "湖の真珠、城と透き通る水。" },
       { id: "trevignano", name_en: "Trevignano Romano", name_it: "Trevignano Romano", name_ja: "トレヴィニャーノ・ロマーノ",
-        desc_en: "🏞️ Hilltop village overlooking Bracciano lake. Access: from Bracciano by bus or taxi (15 min). Best: wander medieval alleys, have lunch with panoramic terrace, hike along lake shore, relax in small piazza.",
-        desc_it: "🏞️ Borgo collinare vista lago. Accesso: autobus da Bracciano. Passeggiate, terrazze panoramiche, natura tranquilla.",
-        desc_ja: "🏞️ ブラッチャーノ湖を見下ろす丘の村。バスかタクシーで。散策と絶景ランチが魅力。",
+        desc_en: "🏞️ Hilltop village overlooking Bracciano lake. Access: from Bracciano by bus/taxi (15 min). Wander medieval alleys, lunch with panoramic terrace, hike lake shore.",
+        desc_it: "🏞️ Borgo collinare vista lago. Accesso: autobus da Bracciano. Passeggiate, terrazze panoramiche.",
+        desc_ja: "🏞️ ブラッチャーノ湖を見下ろす丘の村。バスかタクシーで。散策と絶景ランチ。",
+        imageUrl: "https://images.unsplash.com/photo-1592166202619-b8763bdb072a?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.trevignanoromano.rm.it/",
         excerpt_en: "Panoramic tranquility, lake views.",
         excerpt_it: "Tranquillità panoramica.",
         excerpt_ja: "パノラマの静けさ。" },
       { id: "anguillara", name_en: "Anguillara Sabazia", name_it: "Anguillara Sabazia", name_ja: "アングイッラーラ・サバーツィア",
-        desc_en: "💧 Picturesque village on a peninsula. Access: train Roma San Pietro→Anguillara (45 min). Enjoy: lakeside promenade, swimming at ‘La Spiaggietta’, fresh fish dinner, sunset walk on the old pier.",
+        desc_en: "💧 Picturesque village on a peninsula. Access: train Roma San Pietro→Anguillara (45 min). Lakeside promenade, swimming, fresh fish dinner, sunset pier walk.",
         desc_it: "💧 Penisola romantica. Accesso: treno. Promenade sul lago, spiaggia libera, pesce fresco.",
         desc_ja: "💧 半島の美しい村。電車で。湖畔散歩、水泳、夕暮れの桟橋。",
+        imageUrl: "https://images.unsplash.com/photo-1588632793773-925f67dfcebb?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.anguillarasabazia.rm.it/",
         excerpt_en: "Romantic peninsula & lake charm.",
         excerpt_it: "Penisola romantica.",
         excerpt_ja: "ロマンチックな半島。" },
       { id: "frascati", name_en: "Frascati", name_it: "Frascati", name_ja: "フラスカーティ",
-        desc_en: "🍇 Wine town on Alban Hills. Access: train Roma Termini→Frascati (30 min). Relax: visit Villa Aldobrandini gardens, wine tasting in historic cantine, enjoy ‘porchetta’ and panoramic views of Rome.",
+        desc_en: "🍇 Wine town on Alban Hills. Access: train Roma Termini→Frascati (30 min). Villa Aldobrandini gardens, wine tasting, panoramic views of Rome.",
         desc_it: "🍇 Città del vino. Accesso: treno. Giardini di Villa Aldobrandini, degustazione Frascati Superiore.",
         desc_ja: "🍇 ワインの町。電車で30分。庭園巡りとワイン試飲、ローマ眺望。",
+        imageUrl: "https://images.unsplash.com/photo-1603212955532-694667e3ae4c?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.frascati.rm.it/",
         excerpt_en: "White wine & Roman villa gardens.",
         excerpt_it: "Vino bianco e ville storiche.",
         excerpt_ja: "白ワインと歴史的別荘。" },
       { id: "castelgandolfo", name_en: "Castel Gandolfo", name_it: "Castel Gandolfo", name_ja: "カステル・ガンドルフォ",
-        desc_en: "🏛️ Papal summer residence on Lake Albano. Access: train Roma Termini→Castel Gandolfo (40 min). Marvel at Papal Palaces gardens, stroll to lake crater, enjoy ice cream with a view.",
+        desc_en: "🏛️ Papal summer residence on Lake Albano. Access: train Roma Termini→Castel Gandolfo (40 min). Papal gardens, lake crater stroll, ice cream with a view.",
         desc_it: "🏛️ Residenza papale. Accesso: treno. Giardini pontifici, Lago Albano, gelato vista lago.",
         desc_ja: "🏛️ 教皇の避暑地。電車で。教皇庭園とアルバーノ湖を望むジェラート。",
+        imageUrl: "https://images.unsplash.com/photo-1592255467233-017cfdab1c2c?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.castelgandolfo.rm.it/",
         excerpt_en: "Papal gardens & crater lake.",
         excerpt_it: "Giardini papali e lago craterico.",
         excerpt_ja: "教皇の庭園と火口湖。" },
       { id: "nemi", name_en: "Nemi", name_it: "Nemi", name_ja: "ネミ",
-        desc_en: "🍓 ‘Strawberry town’ overhanging Lake Nemi. Access: bus from Albano or car. Stroll vivid alleys, taste wild strawberries, visit Roman ship museum, silence interrupted only by birds.",
+        desc_en: "🍓 ‘Strawberry town’ overhanging Lake Nemi. Access: bus from Albano or car. Wild strawberries, Roman ship museum, birdsong silence.",
         desc_it: "🍓 Borgo delle fragole. Bus o auto. Panorama, fragoline di bosco, museo navi romane.",
         desc_ja: "🍓 「イチゴの町」バスか車で。野生イチゴ、ローマ船博物館。静寂。",
+        imageUrl: "https://images.unsplash.com/photo-1523904238579-0c91cdf5ed18?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.nemi.rm.it/",
         excerpt_en: "Wild strawberries & sacred lake.",
         excerpt_it: "Fragole e lago sacro.",
         excerpt_ja: "野イチゴと神聖な湖。" },
       { id: "tivoli", name_en: "Tivoli", name_it: "Tivoli", name_ja: "ティヴォリ",
-        desc_en: "🏛️ UNESCO gardens & villas. Access: train Roma Tiburtina→Tivoli (35 min) or bus. Relax: Villa d’Este fountains, Hadrian’s Villa ruins, have lunch in old town, cool breeze from Aniene waterfalls.",
+        desc_en: "🏛️ UNESCO gardens & villas. Access: train Roma Tiburtina→Tivoli (35 min). Villa d’Este fountains, Hadrian’s Villa, cool waterfalls.",
         desc_it: "🏛️ Ville UNESCO. Accesso: treno. Fontane di Villa d’Este, Villa Adriana, cascate.",
         desc_ja: "🏛️ 世界遺産の庭園。電車で。エステ家別荘の噴水、ハドリアヌス別荘。",
+        imageUrl: "https://images.unsplash.com/photo-1584382292415-2c6af6f0aa5b?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.tivoli.rm.it/",
         excerpt_en: "Renaissance gardens & roman ruins.",
         excerpt_it: "Giardini rinascimentali e rovine romane.",
         excerpt_ja: "ルネサンス庭園とローマ遺跡。" },
       { id: "cerveteri", name_en: "Cerveteri", name_it: "Cerveteri", name_ja: "チェルヴェーテリ",
-        desc_en: "🏺 Etruscan necropolis (UNESCO). Access: train Roma Ostiense→Cerveteri (45 min). Spend quiet hours among tumuli, visit museum, then relax in rural agriturismo.",
+        desc_en: "🏺 Etruscan necropolis (UNESCO). Access: train Roma Ostiense→Cerveteri (45 min). Quiet hours among tumuli, museum, agriturismo relax.",
         desc_it: "🏺 Necropoli etrusca UNESCO. Accesso: treno. Atmosfera mistica e silenzio.",
         desc_ja: "🏺 エトルリア人のネクロポリス。電車で。静かな古代探訪。",
+        imageUrl: "https://images.unsplash.com/photo-1600519439677-420886f3d1a6?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.cerveteri.rm.it/",
         excerpt_en: "Ancient Etruscan silence.",
         excerpt_it: "Antico silenzio etrusco.",
         excerpt_ja: "古代エトルリアの静寂。" },
       { id: "sangregorio", name_en: "San Gregorio da Sassola", name_it: "San Gregorio da Sassola", name_ja: "サン・グレゴリオ・ダ・サッソラ",
-        desc_en: "🌿 Hidden medieval gem. Access: bus from Roma Ponte Mammolo (1h) or car. Best: wandering cobblestone lanes, panoramic picnic, countryside walk, away from any tourist flow.",
+        desc_en: "🌿 Hidden medieval gem. Access: bus from Roma Ponte Mammolo (1h) or car. Cobblestone lanes, panoramic picnic, countryside walk.",
         desc_it: "🌿 Gioiello medievale. Bus da Roma. Passeggiate, natura incontaminata.",
         desc_ja: "🌿 隠れた中世の宝石。バスで。石畳と田園散策。",
+        imageUrl: "https://images.unsplash.com/photo-1591291674413-2e03fcafbe54?w=800&h=500&fit=crop",
         officialUrl: "http://www.comune.sangregoriodasassola.rm.it/",
         excerpt_en: "Timeless village & green hills.",
         excerpt_it: "Borgo senza tempo.",
         excerpt_ja: "時が止まった村。" },
       { id: "olevano", name_en: "Olevano Romano", name_it: "Olevano Romano", name_ja: "オレーヴァノ・ロマーノ",
-        desc_en: "🎨 Painter’s refuge (artists’ village). Access: train Roma→Colleferro then bus. Relax: fresh mountain air, visit medieval fortress, trekking in Monti Prenestini, art exhibitions.",
+        desc_en: "🎨 Painter’s refuge. Access: train Roma→Colleferro then bus. Fresh mountain air, medieval fortress, trekking in Monti Prenestini.",
         desc_it: "🎨 Borgo degli artisti. Accesso: treno+bus. Aria fresca e trekking.",
         desc_ja: "🎨 芸術家の村。電車＋バス。トレッキングと中世の要塞。",
+        imageUrl: "https://images.unsplash.com/photo-1568909340946-2f21d2ecdfd9?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.olevanoromano.rm.it/",
         excerpt_en: "Artistic legacy & mountain calm.",
         excerpt_it: "Calma dei monti.",
         excerpt_ja: "芸術と山の静寂。" },
       { id: "arsoli", name_en: "Arsoli", name_it: "Arsoli", name_ja: "アルソリ",
-        desc_en: "📚 ‘Little Paris’ ambiance, nestled in Aniene valley. Access: train Roma→Arsoli (regional FL2). Enjoy magnificent castle, quiet reading corners, slow food, relaxing walks along river.",
+        desc_en: "📚 ‘Little Paris’ in Aniene valley. Access: train Roma→Arsoli (FL2). Magnificent castle, quiet reading corners, slow food, river walks.",
         desc_it: "📚 Piccola Parigi. Accesso: treno. Castello, passeggiate fluviali.",
         desc_ja: "📚 「小さなパリ」。電車で。城と川辺の散策、スローフード。",
+        imageUrl: "https://images.unsplash.com/photo-1591291674413-2e03fcafbe54?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.arsoli.rm.it/",
         excerpt_en: "Castle & literary atmosphere.",
         excerpt_it: "Castello e atmosfera letteraria.",
         excerpt_ja: "城と文学的な雰囲気。" },
       { id: "palestrina", name_en: "Palestrina", name_it: "Palestrina", name_ja: "パレストリーナ",
-        desc_en: "🏛️ Ancient Praeneste, Sanctuary of Fortuna. Access: bus from Roma Anagnina (40 min). Marvel at terraced sanctuary, archaeological museum, mosaic floors, breathtaking views over Latium.",
+        desc_en: "🏛️ Ancient Praeneste, Sanctuary of Fortuna. Access: bus from Roma Anagnina (40 min). Terraced sanctuary, archaeological museum, mosaic floors.",
         desc_it: "🏛️ Antica Praeneste. Accesso: bus. Santuario della Fortuna, museo archeologico.",
         desc_ja: "🏛️ 古代プラエネステ。バスで。フォルトゥーナ聖域とモザイク。",
+        imageUrl: "https://images.unsplash.com/photo-1592255467233-017cfdab1c2c?w=800&h=500&fit=crop",
         officialUrl: "https://www.comune.palestrina.rm.it/",
         excerpt_en: "Mighty sanctuary & roman heritage.",
         excerpt_it: "Santuario e patrimonio romano.",
         excerpt_ja: "壮大な聖域とローマ遺産。" }
     ];
 
-    // --------------------------------------------------------------
-    // SPONSORS config (dynamic, easy to add)
+    // ---------- SPONSORS (anyone can add/remove) ----------
     const sponsorsConfig = {
       top: [
         { name: "Visit Lazio", img: "https://placehold.co/80x80/e6d5b8/4f3e2e?text=Lazio", url: "https://www.visitlazio.com/" },
@@ -466,26 +467,25 @@
         { name: "CoopCulture", img: "https://placehold.co/80x80/e0bc7c/3e2a1f?text=Museums", url: "https://www.coopculture.it/" }
       ]
     };
-    // Helper to load sponsor HTML
-    function renderSponsors(area, sponsors) {
+
+    function renderSponsors(sponsors) {
       if (!sponsors.length) return '';
       return sponsors.map(sp => `
         <div class="sponsor-card">
           <img src="${sp.img}" alt="${sp.name}" loading="lazy" onerror="this.src='https://placehold.co/80x80/gray/white?text=sponsor'">
           <div class="sponsor-info">
             <a href="${sp.url}" target="_blank" rel="noopener noreferrer">${sp.name}</a>
-            <div class="note-add" style="font-size:0.7rem">➕ 公式サイトへ</div>
+            <div class="note-add" style="font-size:0.7rem">➕ Official website</div>
           </div>
         </div>
       `).join('');
     }
 
-    // i18n state
-    let currentLang = "en";  // en, it, ja
-    let currentView = "list"; // "list" or detailId
+    // ---------- I18N & UI ----------
+    let currentLang = "en";   // en, it, ja
+    let currentView = "list";
     let currentDetailId = null;
 
-    // Helper: get translation of a field (nested object)
     function getLocalizedText(place, fieldBase) {
       if (fieldBase === 'name') return place[`name_${currentLang}`] || place.name_en;
       if (fieldBase === 'desc') return place[`desc_${currentLang}`] || place.desc_en;
@@ -493,13 +493,19 @@
       return "";
     }
 
-    // build main list HTML
+    function updateHeaderLanguage() {
+      const titles = { en: "✨ Lazio Quiet Escapes", it: "✨ Lazio Fuga Tranquilla", ja: "✨ ラツィオ 静かな逃避行" };
+      const subs = { en: "Roman countryside · lakes · medieval silence", it: "Campagna romana · laghi · silenzio medievale", ja: "ローマの田園・湖・中世の静けさ" };
+      document.getElementById("siteTitle").innerText = titles[currentLang] || titles.en;
+      document.getElementById("siteSub").innerText = subs[currentLang] || subs.en;
+    }
+
     function renderList() {
       return `
         <div class="places-grid">
           ${placesData.map(place => `
             <div class="card" data-id="${place.id}">
-              <img class="card-img" src="https://placehold.co/600x400/5f7a6c/ffffff?text=${encodeURIComponent(place.name_en.substring(0,12))}" alt="${place.name_en}" loading="lazy">
+              <img class="card-img" src="${place.imageUrl}" alt="${place.name_en}" loading="lazy" onerror="this.src='https://placehold.co/600x400/5f7a6c/ffffff?text=Image'">
               <div class="card-content">
                 <div class="card-title">${getLocalizedText(place, 'name')}</div>
                 <div class="card-excerpt">${getLocalizedText(place, 'excerpt')}</div>
@@ -516,13 +522,12 @@
       if (!place) return `<p>Place not found</p><button class="back-btn" id="backToListBtn">← Back</button>`;
       const name = getLocalizedText(place, 'name');
       const desc = getLocalizedText(place, 'desc');
-      // Official URL might be multilingual, but we use original site
       const official = place.officialUrl;
-      const imgSrc = `https://placehold.co/800x500/4d6a5b/f9f2e8?text=${encodeURIComponent(name)}`;
+      const imgUrl = place.imageUrl;
       return `
         <div class="detail-view">
           <button class="back-btn" id="backToListBtn">← Back to escapes</button>
-          <img class="detail-img" src="${imgSrc}" alt="${name}">
+          <img class="detail-img" src="${imgUrl}" alt="${name}" onerror="this.src='https://placehold.co/800x500/4d6a5b/f9f2e8?text=Image'">
           <h2 class="detail-title">${name}</h2>
           <div class="detail-desc">${desc.replace(/\n/g, '<br>')}</div>
           ${official ? `<a class="official-link" href="${official}" target="_blank" rel="noopener noreferrer">🏛️ ${currentLang === 'it' ? 'Sito ufficiale / Ufficio turismo' : (currentLang === 'ja' ? '公式観光サイト' : 'Official Tourism Website')}</a>` : ''}
@@ -539,23 +544,18 @@
       } else if (currentView === 'detail' && currentDetailId) {
         mainDiv.innerHTML = renderDetail(currentDetailId);
         const backBtn = document.getElementById('backToListBtn');
-        if (backBtn) backBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          navigateToList();
-        });
+        if (backBtn) backBtn.addEventListener('click', navigateToList);
       }
-      // update sponsors (they are static but re-render keeps)
-      document.getElementById('sponsorTopArea').innerHTML = renderSponsors('top', sponsorsConfig.top);
-      document.getElementById('sponsorBottomArea').innerHTML = renderSponsors('bottom', sponsorsConfig.bottom);
+      document.getElementById('sponsorTopArea').innerHTML = renderSponsors(sponsorsConfig.top);
+      document.getElementById('sponsorBottomArea').innerHTML = renderSponsors(sponsorsConfig.bottom);
+      updateHeaderLanguage();
     }
 
     function attachCardListeners() {
       document.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('click', (e) => {
+        card.addEventListener('click', () => {
           const id = card.getAttribute('data-id');
-          if (id) {
-            navigateToDetail(id);
-          }
+          if (id) navigateToDetail(id);
         });
       });
     }
@@ -574,18 +574,9 @@
       window.history.pushState({ view: 'detail', id: id }, '', `#detail/${id}`);
     }
 
-    // language + theme handling
     function setLanguage(lang) {
       currentLang = lang;
       refreshUI();
-      // update map language param (optional but nice)
-      const iframe = document.getElementById('gmap-frame');
-      if (iframe && iframe.src) {
-        let src = iframe.src;
-        src = src.replace(/&language=\w+/, `&language=${lang}`);
-        if (!src.includes('language')) src += `&language=${lang}`;
-        iframe.src = src;
-      }
     }
 
     function initTheme() {
@@ -599,7 +590,26 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
-    // PopState for back button
+    // ---------- LEALFET MAP (Rome center, no API key) ----------
+    let map;
+    function initMap() {
+      const mapDiv = document.getElementById('leafletMap');
+      if (mapDiv && !map) {
+        map = L.map('leafletMap').setView([41.9028, 12.4964], 10);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+          subdomains: 'abcd',
+          maxZoom: 18,
+          minZoom: 6
+        }).addTo(map);
+        // Optional: add a marker for Rome
+        L.marker([41.9028, 12.4964]).addTo(map).bindPopup("Roma • Starting point");
+      }
+    }
+    window.addEventListener('load', () => {
+      initMap();
+    });
+
     window.addEventListener('popstate', (event) => {
       const state = event.state;
       if (state && state.view === 'detail') {
@@ -613,22 +623,17 @@
       }
     });
 
-    // initialize all
     function init() {
       initTheme();
       document.getElementById('themeToggle').addEventListener('click', toggleTheme);
       document.querySelectorAll('[data-lang]').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const lang = btn.getAttribute('data-lang');
-          setLanguage(lang);
+          setLanguage(btn.getAttribute('data-lang'));
         });
       });
-      // default list
       currentView = 'list';
       refreshUI();
-      // initial push state
       window.history.replaceState({ view: 'list' }, '', '#list');
-      // set default language to english
       setLanguage('en');
     }
     init();
