@@ -2,7 +2,7 @@
   "name": "Lazio Quiet Escapes",
   "short_name": "Lazio Escape",
   "description": "12 serene towns near Rome: Bracciano, Castelli Romani, Etruscan villages",
-  "start_url": "index/html",
+  "start_url": "index.html",
   "display": "standalone",
   "theme_color": "#1e1e2f",
   "background_color": "#121212",
