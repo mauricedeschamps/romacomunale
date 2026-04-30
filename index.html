@@ -370,7 +370,9 @@
     const GOOGLE_MAPS_API_KEY = "YOUR_API_KEY";
     // ============================================================
 
-    // ---------- 1. PLACES DATA (全ての画像URL・説明文は元のまま維持) ----------
+    // ---------- 1. PLACES DATA ----------
+    // 修正点: Anguillara Sabazia の officialUrl が壊れていたので正しいURLに修正しました。
+    // 他の officialUrl / imageUrl はあなたが入力したものをそのまま維持しています。
     const placesData = [
       { id: "bracciano", name_en: "Bracciano", name_it: "Bracciano", name_ja: "ブラッチャーノ",
         desc_en: "✨ Medieval charm on a volcanic lake. Access: Train from Roma Termini to Bracciano (50-60 min), then a short walk. \n\n🏰 What to do: Explore the imposing Orsini-Odescalchi Castle (a favorite for celebrity weddings), swim in the crystal-clear waters of Lake Bracciano, rent a kayak or paddleboard, and enjoy a sunset aperitivo at a lakeside trattoria. The historic center is a maze of cobbled alleys leading to panoramic viewpoints.\n\n🍝 Local tip: Try the lakefish specialties – ‘coregone’ (whitefish) is a must.",
@@ -395,8 +397,7 @@
         desc_it: "💧 Villaggio pittoresco su una penisola nel lago di Bracciano. Accesso: Treno da Roma San Pietro ad Anguillara (45 min).\n\n🌅 Cosa fare: Passeggiata sul lungolago, nuotata alla Spiaggietta, cena a base di pesce fresco, e passeggiata sul vecchio molo al tramonto. Atmosfera romantica senza tempo.\n\n🍷 Vino: Accompagna con un Frascati fresco.",
         desc_ja: "💧 ブラッチャーノ湖に突き出た半島の絵のような村。アクセス：ローマ・サン・ピエトロ駅から電車で約45分。\n\n🌅 見どころ：湖畔の遊歩道、無料ビーチ「ラ・スピアッジェッタ」での水泳、夕暮れ時の古い桟橋。タイムレスなロマンチックな雰囲気。\n\n🍷 地元ワイン：冷えたフラスカーティとともに。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToYf38EKFq1zBgQbe8s4r7SCFFXyw5921vhEpZmOdEWg&s=10",
-        officialUrl: "Anguillara Sabazia
-💧 Picturesque village on a peninsula jutting",
+        officialUrl: "https://www.comune.anguillarasabazia.rm.it/",  // ← 修正：正しいURLに戻しました
         excerpt_en: "Romantic peninsula & lake charm.",
         excerpt_it: "Penisola romantica.",
         excerpt_ja: "ロマンチックな半島。" },
@@ -405,7 +406,7 @@
         desc_it: "🍇 Città del vino sui Colli Albani. Accesso: Treno da Roma Termini a Frascati (30 min).\n\n🏛️ Da vedere: Giardini di Villa Aldobrandini (parco gratuito con vista su Roma), degustazione di Frascati Superiore nelle cantine storiche, porchetta nelle osterie locali. Famosa anche per le minestre.\n\n🚶‍♀️ Salita dal trenino: ne vale la pena per i panorami.",
         desc_ja: "🍇 アルバーノ丘陵のワインの町。アクセス：ローマ・テルミニ駅から電車で約30分。\n\n🏛️ 見どころ：ヴィッラ・アルドブランディーニの庭園（無料、ローマ絶景）、フラスカーティ・スペリオーレの試飲、ポルケッタ。野菜スープも名物。\n\n🚶‍♀️ 駅から旧市街への上り坂は絶景への階段。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9HABBIobpNwjG_Dw9pcWYPev1jtJ87DvsdzflYDQ7Jg&s",
-        officialUrl: "https://www.visitcastelliromani.it/en/location/frascati/",
+        officialUrl: "https://www.visitcastelliromani.it/en/location/frascati/",  // あなたの入力維持
         excerpt_en: "White wine & Roman villa gardens.",
         excerpt_it: "Vino bianco e ville storiche.",
         excerpt_ja: "白ワインと歴史的別荘。" },
@@ -450,7 +451,7 @@
         desc_it: "🌿 Gioiello medievale nascosto nella campagna verde. Accesso: Autobus da Roma Ponte Mammolo (1 ora) o auto.\n\n🍃 Fuga: Passeggia per i vicoli di ciottoli senza quasi turisti, fai un picnic panoramico, e percorri i sentieri nei boschi di querce. Il villaggio sembra sospeso nel tempo – ideale per scrittori, artisti e chi cerca vero silenzio.\n\n📖 Storia: Fu un feudo della famiglia Borghese.",
         desc_ja: "🌿 緑の田園に隠れた中世の宝石。アクセス：ローマ・ポンテ・マンモロからバスで約1時間、または車。\n\n🍃 逃避行：ほとんど観光客のいない石畳の小道を散策、丘でパノラマピクニック、周囲のオークの森のトレイル。時間が止まったような村。\n\n📖 昔、ボルゲーゼ家の領地でした。",
         imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAYCijVQKPvcB4q9ZkbURnUlW5sEvxb5rIbwh5n35ZVg&s",
-        officialUrl: "https://provincialleisure.com/article/san-gregorio-da-sassola-italy",
+        officialUrl: "https://provincialleisure.com/article/san-gregorio-da-sassola-italy",  // あなたの入力維持
         excerpt_en: "Timeless village & green hills.",
         excerpt_it: "Borgo senza tempo.",
         excerpt_ja: "時が止まった村。" },
@@ -459,7 +460,7 @@
         desc_it: "🎨 Rifugio degli artisti nei Monti Prenestini. Accesso: Treno da Roma Termini a Colleferro, poi autobus.\n\n🎨 Immersione: Aria fresca di montagna, sali alla fortezza medievale per viste a 360°, escursioni sui sentieri dei Monti Prenestini, e mostre d'arte che continuano la tradizione della colonia di artisti dell'800. La luce qui ha attratto generazioni di pittori.\n\n🥾 Sentiero dei Pittori.",
         desc_ja: "🎨 モンティ・プレネスティーニの芸術家の隠れ家。アクセス：ローマ・テルミニ駅からコッレフェッロまで電車、その後バス。\n\n🎨 浸る：爽やかな山の空気、中世の要塞への登山（360度の眺め）、プレネスティーニ山脈のトレッキング、19世紀の芸術家植民地の伝統を継ぐアート展示。この光は画家たちを魅了してきた。\n\n🥾 「画家の道」ハイキングコース。",
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/8/81/%28Claudius_Ziehr%29_Olevano_02.jpg",
-        officialUrl: "https://www.travelazio.it/olevano-romano/",
+        officialUrl: "https://www.travelazio.it/olevano-romano/",  // あなたの入力維持
         excerpt_en: "Artistic legacy & mountain calm.",
         excerpt_it: "Calma dei monti.",
         excerpt_ja: "芸術と山の静寂。" },
@@ -468,7 +469,7 @@
         desc_it: "📚 «Piccola Parigi» nella valle dell'Aniene. Accesso: Treno da Roma Termini ad Arsoli (linea FL2).\n\n🏰 Scoperta: Esplora il maestoso Castello di Arsoli (ancora privato ma visitabile), angoli di lettura silenziosi, specialità a km zero come pecorino e tartufo, e passeggiate lungo il fiume. Atmosfera letteraria palpabile.\n\n📖 Curiosità: Gabriele D’Annunzio vi soggiornò.",
         desc_ja: "📚 アニエーネ渓谷の「小さなパリ」。アクセス：ローマ・テルミニ駅からアルソリまで電車（FL2線）。\n\n🏰 発見：荘厳なアルソリ城（現在も私有だが見学可能）、旧市街の静かな読書スポット、ペコリーノチーズやトリュフなどのスローフード、アニエーネ川沿いの散歩。文学的な雰囲気。\n\n📖 ダンヌンツィオも滞在したことがあります。",
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/cb/Arsoli_01.jpg",
-        officialUrl: "https://www.visitlazio.com/en/arsoli/",
+        officialUrl: "https://www.visitlazio.com/en/arsoli/",  // あなたの入力維持
         excerpt_en: "Castle & literary atmosphere.",
         excerpt_it: "Castello e atmosfera letteraria.",
         excerpt_ja: "城と文学的な雰囲気。" },
@@ -483,7 +484,7 @@
         excerpt_ja: "壮大な聖域とローマ遺産。" }
     ];
 
-    // ---------- SPONSORS (unchanged) ----------
+    // ---------- SPONSORS ----------
     const sponsorsConfig = {
       top: [
         { name: "Visit Lazio", img: "https://placehold.co/80x80/e6d5b8/4f3e2e?text=Lazio", url: "https://www.visitlazio.com/" },
